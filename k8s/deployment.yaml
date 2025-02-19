@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: gestion-stock-react
-          image: gestion-stock-react:latest  # Utilisation de l'image locale
-          imagePullPolicy: Never             # Important pour utiliser l'image locale
+          image: zineb932/gestion-stock-react:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
 ---
