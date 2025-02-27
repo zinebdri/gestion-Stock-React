@@ -1,35 +1,31 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_IMAGE = 'zineb932/gestion-stock-react'
+        IMAGE_NAME = 'zineb932/gestion-stock-react'
+        IMAGE_TAG = 'latest'
     }
-
     stages {
-        stage('Cloner le repo') {
+        stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/zinebdri/gestion-Stock-React.git'
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
-
-        stage('Push to DockerHub') {
+        stage('Push to Docker Registry') {
             steps {
-                withDockerRegistry([credentialsId: 'dockerhub-credentials', url: '']) {
-                    sh 'docker push $DOCKER_IMAGE'
+                withDockerRegistry([credentialsId: 'dockerhub-credentials', url: 'https://index.docker.io/v1/']) {
+                    sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
                 }
             }
         }
-
-        stage('Déploiement sur Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
+                sh 'kubectl apply -f k8s/deployment.yml'
+                sh 'kubectl rollout restart deployment gestion-stock-react'
             }
         }
     }
