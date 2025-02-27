@@ -7,12 +7,12 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/zinebdri/gestion-Stock-React.git'
+                git credentialsId: 'github-credentials', branch: 'main', url: 'https://github.com/zinebdri/gestion-Stock-React.git'
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh 'docker build --no-cache -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
         stage('Push to Docker Registry') {
@@ -26,6 +26,12 @@ pipeline {
             steps {
                 sh 'kubectl apply -f k8s/deployment.yml'
                 sh 'kubectl rollout restart deployment gestion-stock-react'
+            }
+        }
+        stage('Verify Docker and Kubernetes') {
+            steps {
+                sh 'docker --version'
+                sh 'kubectl version --short'
             }
         }
     }
